@@ -11,7 +11,7 @@ class Lexicon:
         Add the word into your data structure. The word will never be a duplicate.
         """
         if len(word) >= 1:
-            if word.islower()  and word.isalpha():
+            if word.islower() and word.isalpha():
                 self.words.add(word) 
                 self.len_dict.setdefault(len(word),set())
                 self.len_dict[len(word)].add(word)
@@ -27,16 +27,23 @@ class Lexicon:
         ------------------------------------------------------------------------
         Search through your data structure to see if the word is in or not
         """
+        # check word
+        for i in range(len(word)):
+            if word[i] == "." :
+                 continue
+            if not (word[i].islower() and word[i].isalpha()) :
+                return False
+
         if word in self.words:
             return True
         # len is the same
-        elsif len(word) in self.len_dict.keys() :
+        elif len(word) in self.len_dict.keys() :
             
             # get letter index
             letter_index = list()
             for i in range(len(word)):
                 if word[i].isalpha():
-                    letter_index.add(i)
+                    letter_index.append(i)
 
             for i in range(len(word)):
                 # skip .  case
@@ -48,7 +55,7 @@ class Lexicon:
                 for item in self.len_dict[len(word)] :
                     if word[i] == item[i]:
                         match_or_not = True
-                        match_case_list.add(item)
+                        match_case_list.append(item)
                 
                 if not match_or_not :
                     return False
@@ -63,8 +70,24 @@ class Lexicon:
                         return True
                 # not match at all
                 return False
+            # skip all the time
+            return True
         # len is match
         else:
             return False
 
+
+lex = Lexicon()
+
+lex.add_word("apple")
+
+print( "lex.search(\"apple\") : " + str(lex.search("apple") ) )
+print( "lex.search(\"app\") : " + str(lex.search("app") ) )
+print( "lex.search(\"app..\") : " + str(lex.search("app..") ) )
+print( "lex.search(\"..p.e\") : " + str(lex.search("..p.e") ) )
+print( "lex.search(\".....\") : " + str(lex.search(".....") ) )
+print( "lex.search(\"...\") : " + str(lex.search("...") ) )
+print( "lex.search(\"a....\") : " + str(lex.search("a....") ) )
+print( "lex.search(\"a...e\") : " + str(lex.search("a...e") ) )
+print( "lex.search(\"a...3\") : " + str(lex.search("a...3") ) )
 
