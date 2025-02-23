@@ -59,7 +59,7 @@ def feature_extractor(maybe_email):
         # There is '.' after '@'
 		elif i == 4:
 			if feature_vector[3]:
-				feature_vector[i] = 1 if '.' in maybe_email.split('@')[1] else 0
+				feature_vector[i] = 1 if '.' in  "".join(maybe_email.split('@')[1:])  else 0
         # There is no white space
 		elif i == 5:
 			if feature_vector[4]:
