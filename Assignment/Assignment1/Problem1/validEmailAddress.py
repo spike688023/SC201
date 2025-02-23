@@ -73,19 +73,24 @@ def feature_extractor(maybe_email):
 
         # There is no white space
         elif i == 5:
-            feature_vector[i] = 1 if ' ' not in maybe_email else 0
+            if feature_vector[0]:
+                feature_vector[i] = 1 if ' ' not in maybe_email else 0
         # Ends with '.com'
         elif i == 6:
-            feature_vector[i] = 1 if  len(maybe_email) >= 4 and ".com" == maybe_email[-4:] else 0
+            if feature_vector[0]:
+                feature_vector[i] = 1 if  len(maybe_email) >= 4 and ".com" == maybe_email[-4:] else 0
         # Ends with '.edu'
         elif i == 7:
-            feature_vector[i] = 1 if len(maybe_email) >= 4 and ".edu" == maybe_email[-4:] else 0
+            if feature_vector[0]:
+                feature_vector[i] = 1 if len(maybe_email) >= 4 and ".edu" == maybe_email[-4:] else 0
         # Ends with '.tw'
         elif i == 8:
-            feature_vector[i] = 1 if len(maybe_email) >= 3 and ".tw" == maybe_email[-3:] else 0
+            if feature_vector[0]:
+                feature_vector[i] = 1 if len(maybe_email) >= 3 and ".tw" == maybe_email[-3:] else 0
         # Length > 10
         elif i == 9:
-            feature_vector[i] = 1 if len(maybe_email) > 10 else 0
+            if feature_vector[0]:
+                feature_vector[i] = 1 if len(maybe_email) > 10 else 0
     return feature_vector
 
 

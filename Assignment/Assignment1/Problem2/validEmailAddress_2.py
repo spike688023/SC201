@@ -5,31 +5,31 @@ Name:
 Please construct your own feature vectors
 and try to surpass the accuracy achieved by
 Jerry's feature vector in validEmailAddress.py.
-feature1:  TODO:
-feature2:  TODO:
-feature3:  TODO:
-feature4:  TODO:
-feature5:  TODO:
-feature6:  TODO:
-feature7:  TODO:
-feature8:  TODO:
-feature9:  TODO:
-feature10: TODO:
+feature1:  '@' in the str and only once
+feature2:  No '.' or '-' show up at the first char befor '@'
+feature3:  char must be in [a-zA-Z0-9.-_] before '@'
+feature4:  No '.' show up next to '@' and at the end
+feature5:  char must be in [a-zA-Z0-9.-_] after '@'
+feature6:  There is no white space
+feature7:  Ends with '.com'
+feature8:  Ends with '.edu'
+feature9:  Ends with '.tw'
+feature10:  Length > 10
 
 Accuracy of your model: TODO:
 """
 
 WEIGHT = [                           # The weight vector selected by you
-	[],                              # (Please fill in your own weights)
+	[-1],                              # (Please fill in your own weights)
 	[],
 	[],
 	[],
 	[],
 	[],
-	[],
-	[],
-	[],
-	[]
+	[0.1],
+	[0.1],
+	[0.1],
+	[0.1]
 ]
 
 DATA_FILE = 'is_valid_email.txt'     # This is the file name to be processed
@@ -65,6 +65,13 @@ def read_in_data():
 	# TODO:
 	pass
 
+def is_valid_string(s):
+    valid_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_"
+    
+    for char in s:
+        if char not in valid_chars:
+            return False
+    return True
 
 if __name__ == '__main__':
 	main()
