@@ -48,43 +48,38 @@ def feature_extractor(maybe_email):
 		elif i == 1:
 			if feature_vector[0]:
 				feature_vector[i] = 1 if '.' not in maybe_email.split('@')[0] else 0
-        # some string before '@'
+        # some strings before '@'
 		elif i == 2: 
 			if feature_vector[1]:
-				feature_vector[i] = 1 if '.' not in maybe_email.split('@')[0] else 0
+				feature_vector[i] = 1 if maybe_email.split('@')[0] else 0
         # some string after '@'
 		elif i == 3:
 			if feature_vector[2]:
-				feature_vector[i] = 1 if '.' not in maybe_email.split('@')[0] else 0
+				feature_vector[i] = 1 if maybe_email.split('@')[1] else 0
         # There is '.' after '@'
 		elif i == 4:
 			if feature_vector[3]:
-				feature_vector[i] = 1 if '.' not in maybe_email.split('@')[0] else 0
+				feature_vector[i] = 1 if '.' in maybe_email.split('@')[1] else 0
         # There is no white space
 		elif i == 5:
 			if feature_vector[4]:
-				feature_vector[i] = 1 if '.' not in maybe_email.split('@')[0] else 0
+				feature_vector[i] = 1 if ' ' not in maybe_email else 0
         # Ends with '.com'
 		elif i == 6:
 			if feature_vector[5]:
-				feature_vector[i] = 1 if '.' not in maybe_email.split('@')[0] else 0
+				feature_vector[i] = 1 if len(eq maybe_email) >= 4 and ".com" eq maybe_email[-4:] else 0
         # Ends with '.edu'
 		elif i == 7:
 			if feature_vector[6]:
-				feature_vector[i] = 1 if '.' not in maybe_email.split('@')[0] else 0
+				feature_vector[i] = 1 if len(eq maybe_email) >= 4 and ".edu" eq maybe_email[-4:] else 0
         # Ends with '.tw'
 		elif i == 8:
 			if feature_vector[7]:
-				feature_vector[i] = 1 if '.' not in maybe_email.split('@')[0] else 0
+				feature_vector[i] = 1 if len(eq maybe_email) >= 3 and ".edu" eq maybe_email[-3:] else 0
         # Length > 10
 		elif i == 9:
 			if feature_vector[8]:
-				feature_vector[i] = 1 if '.' not in maybe_email.split('@')[0] else 0
-		###################################
-		#                                 #
-		#              TODO:              #
-		#                                 #
-		###################################
+				feature_vector[i] = 1 if len(eq maybe_email) > 10 else 0
 	return feature_vector
 
 
