@@ -29,24 +29,19 @@ DATA_FILE = 'is_valid_email.txt'     # This is the file name to be processed
 
 def main():
     maybe_email_list = read_in_data()
-    wrong_case = 0
+    pass_case = 0
     for index, maybe_email in enumerate(maybe_email_list):
         feature_vector = feature_extractor(maybe_email)
         score = 0
         for i in range(len(feature_vector)):
             score += feature_vector[i] * WEIGHT[i][0]
 
-        if index < 13 and score > 0:
-            wrong_case += 1
-            print("{2}:{0}: {1}, {3}, {4}".format( maybe_email, score, index+1, feature_vector, "wrong case") )
-        elif index >= 13 and score <= 0:
-            wrong_case += 1
-        print("{2}:{0}: {1}, {3}, {4}".format( maybe_email, score, index+1, feature_vector, "pass case") )
+        if index < 13 and score <= 0:
+            pass_case += 1
+        elif index >= 13 and score > 0:
+            pass_case += 1
 
-
-    print("\nwrong_case : {0}".format( wrong_case ) )
-    print("len(maybe_email_list) : {0}".format( len(maybe_email_list) ) )
-    print("Accuracy of this model: {0} ".format( round( wrong_case/len(maybe_email_list) , 16)) )
+    print("Accuracy of this model: {0} ".format( round( pass_case/len(maybe_email_list) , 16)) )
 
 
 def feature_extractor(maybe_email):
@@ -55,7 +50,6 @@ def feature_extractor(maybe_email):
     :return: list, feature vector with 10 values of 0's or 1's
     """
     feature_vector = [0] * len(WEIGHT)
-    #print("len(feature_vector): {0}".format( len(feature_vector) ) )
     for i in range(len(feature_vector)):
         # '@' in the str
         if i == 0:
