@@ -5,18 +5,18 @@ Name:
 Please construct your own feature vectors
 and try to surpass the accuracy achieved by
 Jerry's feature vector in validEmailAddress.py.
-feature1:  '@' in the str and only once
-feature2:  No '.' or '-' show up at the first char befor '@'
-feature3:  char must be in [a-zA-Z0-9.-_] before '@'
-feature4:  No '.' show up next to '@' and at the end
-feature5:  char must be in [a-zA-Z0-9.-_] after '@'
+feature1:  '@' in the str and only one
+feature2:  length of local-part greather 2  and the first char and the last char is not '.'
+feature3:  local-part exist and local-part is alnum and ".." not in the str
+feature4:  some strings after '@'
+feature5:  There is '.' after '@' but not the first char
 feature6:  There is no white space
-feature7:  Ends with '.com'
-feature8:  Ends with '.edu'
-feature9:  Ends with '.tw'
+feature7:  ".." in the str
+feature8:  "\\" in the str
+feature9:  length of local-part exist and the firest char and the last char is '"'
 feature10:  Length > 10
 
-Accuracy of your model: TODO:
+Accuracy of your model: 1.0
 """
 
 import numpy as np
@@ -31,7 +31,7 @@ WEIGHT = [                           # The weight vector selected by you
 	[-0.65],
 	[-0.3],
 	[-0.95],
-	[0.1],
+	[0.2],
 	[-0.7]
 ]
 
@@ -52,9 +52,7 @@ def main():
             pass_case += 1
         elif index >= 13 and score > 0:
             pass_case += 1
-        print("{0}:{1}: {2}".format( index+1, replace_quoted_text_no_quotes(maybe_email), score) )
 
-    print("pass case : {0}".format( pass_case ))
     print("Accuracy of this model: {0} ".format( round( pass_case/len(maybe_email_list) , 16)) )
 
 def feature_extractor(maybe_email):
@@ -64,42 +62,43 @@ def feature_extractor(maybe_email):
     """
     feature_vector = [0] * len(WEIGHT)
     
-    maybe_email = replace_quoted_text_no_quotes(maybe_email)
+    maybe_email = mask_quoted_text(maybe_email)
 
     for i in range(len(feature_vector)):
-        # '@' in the str
+        # '@' in the str and only one
         if i == 0:
-            feature_vector[i] = 1 if '@' in maybe_email else 0
-        # No '.' before '@' 
+            feature_vector[i] = 1 if '@' in maybe_email and len(maybe_email.split('@')) == 2 else 0
+        # length of local-part greather 2  and the first char and the last char is not '.'
         elif i == 1:
             if feature_vector[0]:
                 feature_vector[i] = 1 if  len(maybe_email.split('@')[0]) >= 2 and '.' != maybe_email.split('@')[0][0] and '.' != maybe_email.split('@')[0][-1]  else 0
-        # some strings before '@'
+        # local-part exist and local-part is alnum and ".." not in the str
         elif i == 2: 
             if feature_vector[0]:
-                feature_vector[i] = 1 if maybe_email.split('@')[0] and ".." not in maybe_email.split('@')[0] else 0
+                feature_vector[i] = 1 if maybe_email.split('@')[0] and ".." not in maybe_email.split('@')[0] and maybe_email.split('@')[0].isalnum() else 0
         # some strings after '@'
         elif i == 3:
             if feature_vector[0]:
                 feature_vector[i] = 1 if len("".join(maybe_email.split('@')[1]))  else 0
-        # There is '.' after '@'
+        # There is '.' after '@' but not the first char
         elif i == 4:
             if feature_vector[0]:
                 feature_vector[i] = 1 if '.' in  "".join(maybe_email.split('@')[1:])  else 0
 
-        # There is white space
+        # There is no white space
         elif i == 5:
             if feature_vector[0]:
                 feature_vector[i] = 1 if ' ' not in maybe_email else 0
-        # Ends with '.com'
+        # ".." in the str
         elif i == 6:
                 feature_vector[i] = 1 if ".." in maybe_email else 0
-        # Ends with '.edu'
+        # "\\" in the str
         elif i == 7:
                 feature_vector[i] = 1 if '\\' in maybe_email else 0
-        # Ends with '.tw'
+        # length of local-part exist and the firest char and the last char is '"'
         elif i == 8:
-                feature_vector[i] = 0
+            if feature_vector[0]:
+                feature_vector[i] = 1 if maybe_email.split('@')[0] and '"' == maybe_email.split('@')[0][0] and '"' == maybe_email.split('@')[0][-1]  else 0
         # Length > 10
         elif i == 9:
             if feature_vector[0]:
@@ -118,9 +117,16 @@ def read_in_data():
 
     return mail_list
 
-def replace_quoted_text_no_quotes(s):
-    return re.sub(r'"([^"]*)"', lambda m: 'x' * len(m.group(1)), s)
+def mask_quoted_text(email):
+    def replace_match(m):
+        content = m.group(1)  # 提取雙引號中的內容
+        # 檢查內容是否僅由字母和數字組成
+        if content.isalnum():  # 只包含字母和數字
+            return '\\'  # 替換為\\
+        else:
+            return 'x' * len(content)  # 否則替換為 x 字符
 
+    return re.sub(r'"([^"]*)"', replace_match, email)
 
 if __name__ == '__main__':
     main()
