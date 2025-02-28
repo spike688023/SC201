@@ -98,7 +98,6 @@ def read_in_data():
     """
     :return: list, containing strings that might be valid email addresses
     """
-    # TODO:
     mail_list = list()
     with open(DATA_FILE, "r", encoding="utf-8") as file:
         for line in file:  
