@@ -12,7 +12,8 @@ def increment(d1, scale, d2):
     @param dict d2: a feature vector.
     """
     # BEGIN_YOUR_CODE (our solution is 2 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    for key in set(d1.keys()) | set(d2.keys()):
+        d1[key] = d1.get(key,0) + (scale * d2.get(key,0))
     # END_YOUR_CODE
 
 
@@ -25,12 +26,14 @@ def dotProduct(d1, d2):
     @param dict d2: same as d1
     @return float: the dot product between d1 and d2
     """
-    if len(d1) < len(d2):
-        return dotProduct(d2, d1)
-    else:
-        # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
-        # END_YOUR_CODE
+   #if len(d1) < len(d2):
+   #    return dotProduct(d2, d1)
+   #else:
+   #    # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
+   #    return sum( d1.get(_,0) * d2.get(_,0) for _ in set(d1.keys()) | set(d2.keys()))
+   #    # END_YOUR_CODE
+    # save function call stack
+    return sum( d1.get(_,0) * d2.get(_,0) for _ in set(d1.keys()) | set(d2.keys()))
 
 
 def readExamples(path):
@@ -44,7 +47,7 @@ def readExamples(path):
         y, x = line.split(' ', 1)
         examples.append((x.strip(), int(y)))
     print('Read %d examples from %s' % (len(examples), path))
-    return examples
+    # END_YOUR_CODE
 
 
 ############################################################

@@ -3,3 +3,4 @@ SC201LectureSlides
 drive-download-20250216T091512Z-001
 *.pdf
 .DS_Store
+__pycache__

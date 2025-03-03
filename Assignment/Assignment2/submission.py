@@ -23,7 +23,10 @@ def extractWordFeatures(x: str) -> FeatureVector:
     Example: "I am what I am" --> {'I': 2, 'am': 2, 'what': 1}
     """
     # BEGIN_YOUR_CODE (our solution is 4 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    parse_dict = defaultdict(int)
+    for i in x.split():
+        parse_dict[i] += 1
+    return parse_dict
     # END_YOUR_CODE
 
 
