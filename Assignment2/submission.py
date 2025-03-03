@@ -50,7 +50,16 @@ def learnPredictor(trainExamples: List[Tuple[Any, int]], validationExamples: Lis
     weights = {}  # the weight vector
 
     # BEGIN_YOUR_CODE (our solution is 12 lines of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+
+    # use trainExamples as input to func featureExtractor to get feature vector
+
+    # model w1*x1 ; x1 is feature vector ,  w1 is weight vector
+    # len(weights) is depend on traindata, the data trainiing more , len(weights) might be more
+    for i in range(len(trainExamples)) :
+        x, y= featureExtractor(trainExamples[i][0]), trainExamples[i][1]
+
+    # increment func is using for G.D
+
     # END_YOUR_CODE
     return weights
 
