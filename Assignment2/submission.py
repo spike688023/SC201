@@ -55,10 +55,23 @@ def learnPredictor(trainExamples: List[Tuple[Any, int]], validationExamples: Lis
 
     # model w1*x1 ; x1 is feature vector ,  w1 is weight vector
     # len(weights) is depend on traindata, the data trainiing more , len(weights) might be more
-    for i in range(len(trainExamples)) :
-        x, y= featureExtractor(trainExamples[i][0]), trainExamples[i][1]
+    print_every = 10
+    for epoch in range(numEpochs):
+        cost = 0
+        for i in range(len(trainExamples)) :
+            x, y = featureExtractor(trainExamples[i][0]), trainExamples[i][1]
+            k = dotProduct(weights, x)
+            h = 1/(1+math.log(-k))
+            loss = -( y*math.log(h) + (1-y)*math.log(1-h))
+            cost += loss
 
-    # increment func is using for G.D
+            # increment func for G.D
+            increment(weights, alpha * (h-y), x)
+
+        cost /= len(trainExamples)
+        if epoach % print_every == 0:
+            print("Cost over data : " cost )
+
 
     # END_YOUR_CODE
     return weights
