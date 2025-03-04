@@ -26,18 +26,9 @@ def dotProduct(d1, d2):
     @param dict d2: same as d1
     @return float: the dot product between d1 and d2
     """
-   #if len(d1) < len(d2):
-   #    return dotProduct(d2, d1)
-   #else:
-   #   # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-   #    return sum( d1.get(i,0) * d2.get(i,0) for i in set(d2.keys()) if i in set(d1.keys()))
-   #   # END_YOUR_CODE
+    # save func call stack
     small, large = (d1, d2) if len(d1) < len(d2) else (d2, d1)
     return sum(small[k] * large[k] for k in small if k in large)
-
-
-    return sum( d1.get(_,0) * d2.get(_,0) for _ in d1 & d2)
-
 
 def readExamples(path):
     """

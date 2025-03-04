@@ -3,6 +3,20 @@ File: grader.py
 -----------------------------
 Milestone 4 answer: TODO:
 
+1. WRONG case:
+   不具備意義的綴詞，不該給權重，會影響預測結果。
+   應該準備一份，exclude list ，在讀input 時，先拿掉。
+
+2.
+
+traing error 會隨著 numEpochs 增加，而減少
+
+validation error 只在同個範圍，不受 numEpochs 影響.
+
+numEpochs        |       40    |   70     |   80       |  90
+traing error     |       0.036 |   0.014  |   0.0123   |  0.009
+validation error |       0.267 |   0.261  |   0.263    |  0.265
+
 """
 
 
@@ -80,7 +94,7 @@ def test4a2():
     trainExamples = readExamples('polarity.train')
     validationExamples = readExamples('polarity.dev')
     featureExtractor = submission.extractWordFeatures
-    weights = submission.learnPredictor(trainExamples, validationExamples, featureExtractor, numEpochs=40, alpha=0.01)
+    weights = submission.learnPredictor(trainExamples, validationExamples, featureExtractor, numEpochs=90, alpha=0.01)
     outputWeights(weights, 'weights')
     outputErrorAnalysis(validationExamples, featureExtractor, weights, 'error-analysis')  # Use this to debug
     trainError = evaluatePredictor(trainExamples, lambda x: (1 if dotProduct(featureExtractor(x), weights) > 0 else -1))
