@@ -12,8 +12,8 @@ def increment(d1, scale, d2):
     @param dict d2: a feature vector.
     """
     # BEGIN_YOUR_CODE (our solution is 2 lines of code, but don't worry if you deviate from this)
-    for key in set(d1.keys()) | set(d2.keys()):
-        d1[key] = d1.get(key,0) + (scale * d2.get(key,0))
+    for k in d2.keys() :
+        d1[k] = d1.get(k,0) + (scale * d2[k])
     # END_YOUR_CODE
 
 
@@ -29,11 +29,14 @@ def dotProduct(d1, d2):
    #if len(d1) < len(d2):
    #    return dotProduct(d2, d1)
    #else:
-   #    # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-   #    return sum( d1.get(_,0) * d2.get(_,0) for _ in set(d1.keys()) | set(d2.keys()))
-   #    # END_YOUR_CODE
-    # save function call stack
-    return sum( d1.get(_,0) * d2.get(_,0) for _ in set(d1.keys()) | set(d2.keys()))
+   #   # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
+   #    return sum( d1.get(i,0) * d2.get(i,0) for i in set(d2.keys()) if i in set(d1.keys()))
+   #   # END_YOUR_CODE
+    small, large = (d1, d2) if len(d1) < len(d2) else (d2, d1)
+    return sum(small[k] * large[k] for k in small if k in large)
+
+
+    return sum( d1.get(_,0) * d2.get(_,0) for _ in d1 & d2)
 
 
 def readExamples(path):
@@ -47,6 +50,7 @@ def readExamples(path):
         y, x = line.split(' ', 1)
         examples.append((x.strip(), int(y)))
     print('Read %d examples from %s' % (len(examples), path))
+    return examples
     # END_YOUR_CODE
 
 

@@ -47,7 +47,7 @@ def learnPredictor(trainExamples: List[Tuple[Any, int]], validationExamples: Lis
     to see how you're doing as you learn after each epoch. Note also that the 
     identity function may be used as the featureExtractor function during testing.
     """
-    weights = {}  # the weight vector
+    weights = defaultdict(int)  # the weight vector
 
     # BEGIN_YOUR_CODE (our solution is 12 lines of code, but don't worry if you deviate from this)
 
@@ -59,18 +59,19 @@ def learnPredictor(trainExamples: List[Tuple[Any, int]], validationExamples: Lis
     for epoch in range(numEpochs):
         cost = 0
         for i in range(len(trainExamples)) :
-            x, y = featureExtractor(trainExamples[i][0]), trainExamples[i][1]
+            x, y = featureExtractor(trainExamples[i][0]), 1 if trainExamples[i][1] == 1 else 0
             k = dotProduct(weights, x)
-            h = 1/(1+math.log(-k))
-            loss = -( y*math.log(h) + (1-y)*math.log(1-h))
-            cost += loss
+            h = 1/(1+math.exp(-k))
+            #loss = -( y*math.log(h) + (1-y)*math.log(1-h))
+            #cost += loss
 
             # increment func for G.D
-            increment(weights, alpha * (h-y), x)
+            increment(weights, -1 * alpha * (h-y), x)
+            #print("x : {0}\ny : {1}\nk : {2}\nh : {3}\nweights : {4}\nalpha : {5} ".format(x,y,k,h,weights,alpha) )
 
-        cost /= len(trainExamples)
-        if epoach % print_every == 0:
-            print("Cost over data : " cost )
+        #cost /= len(trainExamples)
+        #if epoch % print_every == 0:
+            #print("Cost over data : ", cost )
 
 
     # END_YOUR_CODE
