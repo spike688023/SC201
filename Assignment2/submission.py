@@ -47,7 +47,10 @@ def learnPredictor(trainExamples: List[Tuple[Any, int]], validationExamples: Lis
     to see how you're doing as you learn after each epoch. Note also that the 
     identity function may be used as the featureExtractor function during testing.
     """
+
     weights = defaultdict(int)  # the weight vector
+    def predictor(x : str) -> int:
+        return 1 if dotProduct(featureExtractor(x), weights) > 0 else -1
 
     # BEGIN_YOUR_CODE (our solution is 12 lines of code, but don't worry if you deviate from this)
 
@@ -62,18 +65,11 @@ def learnPredictor(trainExamples: List[Tuple[Any, int]], validationExamples: Lis
             x, y = featureExtractor(trainExamples[i][0]), 1 if trainExamples[i][1] == 1 else 0
             k = dotProduct(weights, x)
             h = 1/(1+math.exp(-k))
-            #loss = -( y*math.log(h) + (1-y)*math.log(1-h))
-            #cost += loss
 
             # increment func for G.D
             increment(weights, -1 * alpha * (h-y), x)
-            #print("x : {0}\ny : {1}\nk : {2}\nh : {3}\nweights : {4}\nalpha : {5} ".format(x,y,k,h,weights,alpha) )
 
-        #cost /= len(trainExamples)
-        #if epoch % print_every == 0:
-            #print("Cost over data : ", cost )
-
-
+        print("Training Error: ({0} epoch): {1}\nValidation Error: ({0} epoch): {2}".format(epoch, evaluatePredictor(trainExamples, predictor), evaluatePredictor(validationExamples, predictor)))
     # END_YOUR_CODE
     return weights
 
@@ -100,7 +96,7 @@ def generateDataset(numExamples: int, weights: WeightVector) -> List[Example]:
         phi, y, random_keys = dict(), 0, random.randint(1, len(weights))
         for i in random.sample(list(weights.keys()), random_keys):
             phi[i] = random.randint(1, len(weights))
-        y = 1 if dotProduct(phi, weights) > 0 else -1
+        y = 1 if dotProduct(phi, weights) >= 0 else -1
         # END_YOUR_CODE
         return phi, y
 
@@ -120,7 +116,11 @@ def extractCharacterFeatures(n: int) -> Callable[[str], FeatureVector]:
 
     def extract(x: str) -> Dict[str, int]:
         # BEGIN_YOUR_CODE (our solution is 5 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        extract_dict, remove_space_x = defaultdict(int), x.replace(" ", "")
+        for i in range(0, len(remove_space_x)):
+            if i+n <= len(remove_space_x):
+                extract_dict[remove_space_x[i:i+n]] += 1
+        return extract_dict
         # END_YOUR_CODE
 
     return extract

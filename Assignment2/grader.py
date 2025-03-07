@@ -93,7 +93,8 @@ grader.add_basic_part('4a-1', test4a1, max_points=5, max_seconds=2, description=
 def test4a2():
     trainExamples = readExamples('polarity.train')
     validationExamples = readExamples('polarity.dev')
-    featureExtractor = submission.extractWordFeatures
+    #featureExtractor = submission.extractWordFeatures
+    featureExtractor = submission.extractCharacterFeatures(4)
     weights = submission.learnPredictor(trainExamples, validationExamples, featureExtractor, numEpochs=90, alpha=0.01)
     outputWeights(weights, 'weights')
     outputErrorAnalysis(validationExamples, featureExtractor, weights, 'error-analysis')  # Use this to debug
@@ -108,8 +109,18 @@ grader.add_basic_part('4a-2', test4a2, max_points=30, max_seconds=45, descriptio
 ############################################################
 # Milestone 5: Finishing up
 # TODO: Is there any difference between using extractCharacterFeatures and extractWordFeatures? Why?
-# TODO: Your answer here
-# TODO: ______________________________________________________________________________________
+#                      Word       |  Char
+#   Training error     0.001      |  0
+#   validation error   0.26       |  0.27
+
+#   Char case 的 training error 是零，代表模型不是抓出趨勢，而是把所有case
+#   都背起來， 導致 validation error 比 Word case 還高。
+
+#   Acc 跟 Epoch 的關係圖來看，  Word case是 Just Right, 而Char case是overfit
+
+#   Char case 是train data 太小 ，以及 epoch 太多， 第31輪，training error
+#   就為零了
+
 ############################################################
 
 ### 5a
