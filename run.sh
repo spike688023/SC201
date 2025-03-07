@@ -1,7 +1,8 @@
+!/bin/bash
 param="${1:-update}"
 
 echo "Commit msg is : $param"
 
-git add -f **/*.py **/*.sh 2>/dev/null
+eval git add **/*.py **/*.sh
 git commit -m "$param"
 git push -u origin main
