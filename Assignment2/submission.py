@@ -55,9 +55,9 @@ def learnPredictor(trainExamples: List[Tuple[Any, int]], validationExamples: Lis
     # BEGIN_YOUR_CODE (our solution is 12 lines of code, but don't worry if you deviate from this)
 
     # use trainExamples as input to func featureExtractor to get feature vector
-
     # model w1*x1 ; x1 is feature vector ,  w1 is weight vector
     # len(weights) is depend on traindata, the data trainiing more , len(weights) might be more
+
     print_every = 10
     for epoch in range(numEpochs):
         cost = 0

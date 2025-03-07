@@ -93,9 +93,10 @@ grader.add_basic_part('4a-1', test4a1, max_points=5, max_seconds=2, description=
 def test4a2():
     trainExamples = readExamples('polarity.train')
     validationExamples = readExamples('polarity.dev')
-    #featureExtractor = submission.extractWordFeatures
-    featureExtractor = submission.extractCharacterFeatures(4)
-    weights = submission.learnPredictor(trainExamples, validationExamples, featureExtractor, numEpochs=90, alpha=0.01)
+    featureExtractor = submission.extractWordFeatures
+    #featureExtractor = submission.extractCharacterFeatures(4)
+    #weights = submission.learnPredictor(trainExamples, validationExamples, featureExtractor, numEpochs=90, alpha=0.01)
+    weights = submission.learnPredictor(trainExamples, validationExamples, featureExtractor, numEpochs=40, alpha=0.01)
     outputWeights(weights, 'weights')
     outputErrorAnalysis(validationExamples, featureExtractor, weights, 'error-analysis')  # Use this to debug
     trainError = evaluatePredictor(trainExamples, lambda x: (1 if dotProduct(featureExtractor(x), weights) > 0 else -1))
