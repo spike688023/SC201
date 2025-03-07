@@ -97,7 +97,10 @@ def generateDataset(numExamples: int, weights: WeightVector) -> List[Example]:
         Note that the weight vector can be arbitrary during testing.
         """
         # BEGIN_YOUR_CODE (our solution is 4 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        phi, y, random_keys = dict(), 0, random.randint(1, len(weights))
+        for i in random.sample(list(weights.keys()), random_keys):
+            phi[i] = random.randint(1, len(weights))
+        y = 1 if dotProduct(phi, weights) > 0 else -1
         # END_YOUR_CODE
         return phi, y
 
