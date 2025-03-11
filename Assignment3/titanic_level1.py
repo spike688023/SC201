@@ -25,29 +25,28 @@ def data_preprocess(filename: str, data: dict, mode='Train', training_data=None)
 	"""
 		
 	with open(filename, 'r') as file:
-	    # first row
-        # PassengerId,Survived,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
-		first_line, lines = file.readlines()[0], file.readlines()[1:]
+		# first row
+		# PassengerId,Survived,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
+		next(file)
+		#first_line, lines = file.readlines()[0], file.readlines()[1:]
+		#lines =  file.readlines()[1:]
 
-		for line in file:
-    		line = line.strip()
+		for num, line in enumerate(file):
+			line = line.strip()
 			person_data = line.split(',')
-    		ans = []
 
 			# start from column Pclass
-			if mode == 'train':
+			if mode == 'Train':
 				start = 2
-			else:
-				start = 1
-
-        	# Name : index 3,4
-        	# skip NaN case in index start+4 (Age) and index start+10 (Embarked)
-			if person_data[start+4] == "" or person_data[start+10] == "":
-					continue
-
-            # add Survived info for train 
-			if mode == 'train':
+				# skip NaN case in index start+4 (Age) and index start+10 (Embarked)
+				if person_data[start+4] == "" or person_data[start+10] == "":
+						continue
+            	# add Survived info for train 
 				data.setdefault("Survived", []).append( int(person_data[1]) )
+			else:
+				Age_avg_in_Train_data = round( sum(training_data['Age'])/len(training_data['Age']), 3 )
+				Fare_avg_in_Train_data = round( sum(training_data['Fare'])/len(training_data['Fare']), 3 )
+				start = 1
 
 			# Train data
             # 0          ,1       ,2     ,3 4 ,5  ,6  ,7    ,8    ,9     ,10  ,11   ,12
@@ -58,38 +57,41 @@ def data_preprocess(filename: str, data: dict, mode='Train', training_data=None)
             # PassengerId,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
 			for i in range(len(person_data)):
 				if i == start:
-					# Pclass, normalize from 0 to 1
-				    data.setdefault("Pclass", []).append( int(person_data[i])-1) / (3-1) )
+					# Pclass
+				    data.setdefault("Pclass", []).append( int(person_data[i]) )
 				elif i == start+3:
 					# Sex
-					if data_lst[i] == 'male':
-				        data.setdefault("Sex", []).append( 1 )
+					if person_data[i] == 'male':
+						data.setdefault("Sex", []).append( 1 )
 					else:
-				        data.setdefault("Sex", []).append( 0 )
+						data.setdefault("Sex", []).append( 0 )
 				elif i == start+4:
 					# Age
-					if data_lst[i]:
-						ans.append( (float(data_lst[i]) - 0.42) / (80-0.42) )
-						ans.append( ((float(data_lst[i]) - 0.42) / (80-0.42)) **2 )
+					if person_data[i]: 
+						data.setdefault("Age", []).append( float(person_data[i]) )
+					# give avg data from Train when data is empty in Test  
 					else:
-						ans.append( (29.699 - 0.42) / (80-0.42) )
-						ans.append( ((29.699 - 0.42) / (80-0.42)) **2 )
+						data.setdefault("Age", []).append( Age_avg_in_Train_data )
 				elif i == start+5:
-					# SibSp, normalize from 0 to 1
-				    data.setdefault("SibSp", []).append( (int(person_data[i]) - 0) / 8 )
+					# SibSp
+					data.setdefault("SibSp", []).append( int(person_data[i]) )
 				elif i == start+6:
-					# Parch, normalize from 0 to 1
-				    data.setdefault("SibSp", []).append( (int(person_data[i]) - 0) / 6 )
+					# Parch
+					data.setdefault("Parch", []).append( int(person_data[i]) )
 				elif i == start+8:
 					# Fare
-					if person_data[i]:
-						ans.append((float(person_data[i]) - 0) / 512.3292)
-						ans.append(((float(person_data[i]) - 0) / 512.3292) **2)
+					if person_data[i]: 
+						data.setdefault("Fare", []).append( float(person_data[i]) )
 					else:
-						ans.append( 32.2/512.3292)
-						ans.append( (32.2/512.3292) **2)
-			if mode == 'train':
-				return ans, y
+						data.setdefault("Fare", []).append( Fare_avg_in_Train_data )
+				elif i == start+10:
+					# Embarked
+					if person_data[i] == 'S':
+						data.setdefault("Embarked", []).append( 0 )
+					elif person_data[i] == 'C':
+						data.setdefault("Embarked", []).append( 1 )
+					elif person_data[i] == 'Q':
+						data.setdefault("Embarked", []).append( 2 )
 	return data
 
 
