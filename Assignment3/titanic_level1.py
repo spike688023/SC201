@@ -101,11 +101,18 @@ def one_hot_encoding(data: dict, feature: str):
 	:param feature: str, the column name of interest
 	:return data: dict[str, list], remove the feature column and add its one-hot encoding features
 	"""
-	############################
-	#                          #
-	#          TODO:           #
-	#                          #
-	############################
+
+	values_set = set( data[feature] )
+	min_index_from_values_set = min(values_set)
+	# add new feature
+	for item in range(len(data[feature])):
+			for index in values_set:
+					if data[feature][item] == index :
+							data.setdefault(feature + '_' + str(index - min_index_from_values_set), []).append( 1 )
+					else:
+							data.setdefault(feature + '_' + str(index - min_index_from_values_set), []).append( 0 )
+	# pop unsed feature
+	data.pop(feature)
 	return data
 
 
@@ -114,11 +121,12 @@ def normalize(data: dict):
 	:param data: dict[str, list], key is the column name, value is its data
 	:return data: dict[str, list], key is the column name, value is its normalized data
 	"""
-	############################
-	#                          #
-	#          TODO:           #
-	#                          #
-	############################
+	# normalize : x - min/(max - min)
+	for key in data.keys():
+			min_value = min(data[key])
+			divisor = max(data[key]) - min_value
+			for index, value in enumerate(data[key]):
+				 data[key][index] = (value - min_value) / divisor
 	return data
 
 
