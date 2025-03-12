@@ -162,8 +162,16 @@ def learnPredictor(inputs: dict, labels: list, degree: int, num_epochs: int, alp
 
 		for index in range(len(labels)):
 			# Step 3 : Feature Extract
-			for i in range(len(keys)):
-				phi_x[keys[i]] = inputs[keys[i]][index]
+			if degree == 1:
+				for i in range(len(keys)):
+					phi_x[keys[i]] = inputs[keys[i]][index]
+			elif degree == 2:
+				for i in range(len(keys)):
+					phi_x[keys[i]] = inputs[keys[i]][index]
+				# Squared Feature and Cross Feature
+				for i in range(len(keys)):
+					for j in range(i, len(keys)):
+						phi_x[keys[i] + keys[j]] = inputs[keys[i]][index] * inputs[keys[j]][index]
 
 			# Step 4 : Update weights
 			h = sigmoid(dotProduct(weights, phi_x))
