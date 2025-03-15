@@ -107,11 +107,11 @@ def one_hot_encoding(data: dict, feature: str):
 	min_index_from_values_set = min(values_set)
 	# add new feature
 	for item in range(len(data[feature])):
-			for index in values_set:
-					if data[feature][item] == index :
-							data.setdefault(feature + '_' + str(index - min_index_from_values_set), []).append( 1 )
-					else:
-							data.setdefault(feature + '_' + str(index - min_index_from_values_set), []).append( 0 )
+		for index in values_set:
+			if data[feature][item] == index :
+				data.setdefault(feature + '_' + str(index - min_index_from_values_set), []).append( 1 )
+			else:
+				data.setdefault(feature + '_' + str(index - min_index_from_values_set), []).append( 0 )
 	# pop unsed feature
 	data.pop(feature)
 	return data

@@ -54,11 +54,9 @@ def one_hot_encoding(data, feature):
 	:param feature: str, the column name of interest
 	:return data: DataFrame, remove the feature column and add its one-hot encoding features
 	"""
-	############################
-	#                          #
-	#          TODO:           #
-	#                          #
-	############################
+	# value from 1,2,3 to 0,1,2
+	data["Pclass"] = data["Pclass"] - 1
+	data = pd.get_dummies(data, columns=["Sex", "Pclass", "Embarked"])
 	return data
 
 
