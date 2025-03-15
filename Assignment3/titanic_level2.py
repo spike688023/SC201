@@ -28,11 +28,18 @@ def data_preprocess(filename, mode='Train', training_data=None):
 	"""
 	data = pd.read_csv(filename)
 	labels = None
-	################################
-	#                              #
-	#             TODO:            #
-	#                              #
-	################################
+
+	# drop unused data
+	data = data.drop(columns=['PassengerId', 'Name', 'Ticket', 'Cabin' ])
+	data = data.dropna(subset=['Age','Embarked'])
+
+	# transform str to int/float
+	data[["Pclass", "Age", "SibSp", "Parch"]] = data[["Pclass", "Age", "SibSp", "Parch"]].apply(pd.to_numeric, errors="coerce")
+	data["Sex"] = data["Sex"].replace({"male": 1, "female": 0})
+	data["Fare"] = pd.to_numeric(data["Fare"]).fillna(data["Fare"].mean())
+	data["Embarked"] = data["Embarked"].replace({"S": 0, "C": 1, "Q": 2})
+	labels = data.pop('Survived')
+
 	if mode == 'Train':
 		return data, labels
 	elif mode == 'Test':

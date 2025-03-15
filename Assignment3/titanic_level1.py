@@ -50,12 +50,12 @@ def data_preprocess(filename: str, data: dict, mode='Train', training_data=None)
 				start = 1
 
 			# Train data
-            # 0          ,1       ,2     ,3 4 ,5  ,6  ,7    ,8    ,9     ,10  ,11   ,12
-            # PassengerId,Survived,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
-            #
-			# Test data
-            # 0          ,1     ,2 3 ,4  ,5  ,6    ,7    ,8     ,9   ,10   ,11
-            # PassengerId,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
+			# 0          ,1       ,2     ,3 4 ,5  ,6  ,7    ,8    ,9     ,10  ,11   ,12
+			# PassengerId,Survived,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
+			#
+				# Test data
+			# 0          ,1     ,2 3 ,4  ,5  ,6    ,7    ,8     ,9   ,10   ,11
+			# PassengerId,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
 			for i in range(len(person_data)):
 				if i == start:
 					# Pclass
