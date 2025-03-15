@@ -66,11 +66,8 @@ def standardization(data, mode='Train'):
 	:param mode: str, indicating the mode we are using (either Train or Test)
 	:return data: DataFrame, standardized features
 	"""
-	############################
-	#                          #
-	#          TODO:           #
-	#                          #
-	############################
+	scaler = preprocessing.StandardScaler()
+	data = scaler.fit_transform(data)
 	return data
 
 
