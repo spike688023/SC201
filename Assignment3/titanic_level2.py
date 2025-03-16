@@ -77,9 +77,9 @@ def main():
 	~83% on degree2; ~87% on degree3.
 	Please write down the accuracy for degree1, 2, and 3 respectively below
 	(rounding accuracies to 8 decimal places)
-	TODO: real accuracy on degree1 -> ______________________
-	TODO: real accuracy on degree2 -> ______________________
-	TODO: real accuracy on degree3 -> ______________________
+	TODO: real accuracy on degree1 -> 0.80196629
+	TODO: real accuracy on degree2 -> 0.83707865
+	TODO: real accuracy on degree3 -> 0.87640449
 	"""
 	train_data, Y = data_preprocess(TRAIN_FILE)
 
@@ -94,9 +94,9 @@ def main():
 	#############################
 	# Degree 1 Polynomial Model #
 	#############################
-	h = linear_model.LogisticRegression()
+	h = linear_model.LogisticRegression(max_iter=1000)
 	classifier = h.fit(X_train, Y)
-	train_acc = classifier.score(X_train, Y)
+	train_acc = round(classifier.score(X_train, Y),8 )
 	print(train_acc)
 
 	#############################
@@ -104,18 +104,24 @@ def main():
 	#############################
 	poly_phi_extractor = preprocessing.PolynomialFeatures(degree=2)
 	X_train_poly = poly_phi_extractor.fit_transform(X_train)
-	print(X_train)
-	print(X_train_poly)
 	classifier_poly = h.fit(X_train_poly, Y)
-	train_acc = classifier_poly.score(X_train_poly, Y)
+	train_acc = round( classifier_poly.score(X_train_poly, Y), 8)
+	print(train_acc)
+
+	#############################
+	# Degree 3 Polynomial Model #
+	#############################
+	poly_phi_extractor = preprocessing.PolynomialFeatures(degree=3)
+	X_train_poly3 = poly_phi_extractor.fit_transform(X_train)
+	classifier_poly = h.fit(X_train_poly3, Y)
+	train_acc = round( classifier_poly.score(X_train_poly3, Y),8 )
 	print(train_acc)
 
 	# Test dataset
-########test_data = data_preprocess(TEST_FILE, mode='Test')
-########X_test = normalizer.transform(test_data)
-########X_test_poly = poly_phi_extractor.transform(X_test)
-########predictions_poly = classifier_poly.predict(X_test_poly)
-	#out_file(predictions_poly, "pandas_sklearn_degree2.csv")
+	#test_data = data_preprocess(TEST_FILE, mode='Test')
+	#X_test = normalizer.transform(test_data)
+	#X_test_poly = poly_phi_extractor.transform(X_test)
+	#predictions_poly = classifier_poly.predict(X_test_poly)
 
 
 if __name__ == '__main__':
