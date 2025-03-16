@@ -54,9 +54,8 @@ def one_hot_encoding(data, feature):
 	:param feature: str, the column name of interest
 	:return data: DataFrame, remove the feature column and add its one-hot encoding features
 	"""
-	# value from 1,2,3 to 0,1,2
-	data["Pclass"] = data["Pclass"] - 1
-	data = pd.get_dummies(data, columns=["Sex", "Pclass", "Embarked"])
+	data[feature] -= 0 if (data[feature] == 0).any() else 1
+	data = pd.get_dummies(data, columns=[feature] )
 	return data
 
 
@@ -82,7 +81,41 @@ def main():
 	TODO: real accuracy on degree2 -> ______________________
 	TODO: real accuracy on degree3 -> ______________________
 	"""
-	pass
+	train_data, Y = data_preprocess(TRAIN_FILE)
+
+	train_data = one_hot_encoding(train_data, 'Sex')
+	train_data = one_hot_encoding(train_data, 'Pclass')
+	train_data = one_hot_encoding(train_data, 'Embarked')
+
+	# Normalization / Standardization
+	normalizer = preprocessing.StandardScaler()
+	X_train = normalizer.fit_transform(train_data)
+
+	#############################
+	# Degree 1 Polynomial Model #
+	#############################
+	h = linear_model.LogisticRegression()
+	classifier = h.fit(X_train, Y)
+	train_acc = classifier.score(X_train, Y)
+	print(train_acc)
+
+	#############################
+	# Degree 2 Polynomial Model #
+	#############################
+	poly_phi_extractor = preprocessing.PolynomialFeatures(degree=2)
+	X_train_poly = poly_phi_extractor.fit_transform(X_train)
+	print(X_train)
+	print(X_train_poly)
+	classifier_poly = h.fit(X_train_poly, Y)
+	train_acc = classifier_poly.score(X_train_poly, Y)
+	print(train_acc)
+
+	# Test dataset
+########test_data = data_preprocess(TEST_FILE, mode='Test')
+########X_test = normalizer.transform(test_data)
+########X_test_poly = poly_phi_extractor.transform(X_test)
+########predictions_poly = classifier_poly.predict(X_test_poly)
+	#out_file(predictions_poly, "pandas_sklearn_degree2.csv")
 
 
 if __name__ == '__main__':
