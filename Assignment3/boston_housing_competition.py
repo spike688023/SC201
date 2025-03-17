@@ -23,42 +23,27 @@ TEST_FILE = 'boston_housing/test.csv'
 def main():
 	train_data = pd.read_csv(TRAIN_FILE)
 	y = train_data.pop("medv")
-	# extract rm as feature to do training
-	x_train = np.array(train_data.rm).reshape(-1, 1)
 
-	'''
+	#############################
+	# Degree 1 Polynomial Model #
+	#############################
 	h = linear_model.LinearRegression()
-	regressor = h.fit(x_train, y)
-	print(sum(regressor.predict(x_train))/len(x_train))
-	'''
-	# y = w*x+b
-	w, b, c = 0, 0, 0.6
-	alpha = 0.01
-	num_epoch = 20
-	history = []
-	for num in range(num_epoch):
-		total = 0
-		for i in range(len(x_train)):
-			x, label = x_train[i], y[i]
-			h = w*x+b
-			loss = (h - label)**2
-			total += loss
-			# G.D
-			#w = w - alpha*2*(h - label)*x
-			#b = b - alpha*2*(h - label)*1
-			w = w - alpha*2*(h - label)*x*(sign(h-label)-c)**2
-			b = b - alpha*2*(h - label)*1*(sign(h-label)-c)**2
-		history.append(total/len(train_data))
-	#plt.plot(history)
-	#plt.show()
-	
-	predictions = []
-	for x in x_train:
-		predictions.append( w*x+b )
-	print(sum(predictions)/len(x_train) )
+	regressor_degree_1 = h.fit(train_data, y)
+	predictions = h.predict(train_data)
 
 	# RMS error
-	print( metrics.mean_squared_error(predictions, y)**0.5 )
+	print( "Linear regression of poly degree 1 : ", metrics.mean_squared_error(predictions, y)**0.5 )
+
+	#############################
+	# Degree 2 Polynomial Model #
+	#############################
+	poly = preprocessing.PolynomialFeatures(degree=2)  # 轉換成二次多項式特徵
+	X_train_poly = poly.fit_transform(train_data)
+	regressor_degree_2 = h.fit(X_train_poly, y)
+	predictions = h.predict(X_train_poly)
+
+	# RMS error
+	print( "Linear regression of poly degree 2 : ", metrics.mean_squared_error(predictions, y)**0.5 )
 
 def sign(x):
 	if x > 0:
