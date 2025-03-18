@@ -82,19 +82,23 @@ def main():
 	#############################
 	h = ensemble.RandomForestRegressor(n_estimators=100, random_state=42)
 
-	h.fit(X_train, y_train)
+	model_status(h, X_train, y_train, X_val, y_val, test_data, "random_forest_regressor.csv", "Random Forest Regressor")
 
-	predictions_train = h.predict(X_train)
-	predictions_val = h.predict(X_val)
-	predictions_test = h.predict(test_data)
-	out_file_name = "random_forest_regressor.csv"
+####h.fit(X_train, y_train)
 
-	# RMS error
-	print_prediction_status( "Random Forest Regressor", predictions_train, y_train, predictions_val, y_val, out_file_name)
-	out_file(test_data.ID, predictions_test, out_file_name)
+####predictions_train = h.predict(X_train)
+####predictions_val = h.predict(X_val)
+####predictions_test = h.predict(test_data)
+####out_file_name = "random_forest_regressor.csv"
+
+##### RMS error
+####print_prediction_status( "Random Forest Regressor", predictions_train, y_train, predictions_val, y_val, out_file_name)
+####out_file(test_data.ID, predictions_test, out_file_name)
+
+
 
 	# find best parameter
-	random_search = RandomizedSearchCV(ensemble.RandomForestRegressor(random_state=42),param_dist, n_iter=20, cv=5, scoring='neg_root_mean_squared_error', verbose=2)
+	random_search = RandomizedSearchCV(ensemble.RandomForestRegressor(random_state=42),param_dist, n_iter=20, cv=5, scoring='neg_root_mean_squared_error')
 	random_search.fit(X_train, y_train)
 	print("Best Parameters:", random_search.best_params_)
 
@@ -105,19 +109,19 @@ def main():
 	# 直接餵給 RandomForestRegressor
 	best_model = ensemble.RandomForestRegressor(**best_params, random_state=42)
 
-	best_model.fit(X_train, y_train)
+	model_status(best_model, X_train, y_train, X_val, y_val, test_data, "random_forest_regressor_best.csv", "Random Forest Regressor")
 
-	# 訓練最佳模型
-	predictions_train = best_model.predict(X_train)
-	predictions_val = best_model.predict(X_val)
-	predictions_test = best_model.predict(test_data)
-	out_file_name = "random_forest_regressor_best.csv"
+####best_model.fit(X_train, y_train)
 
-	# RMS error
-	print_prediction_status( "Random Forest Regressor", predictions_train, y_train, predictions_val, y_val, out_file_name)
-	out_file(test_data.ID, predictions_test, out_file_name)
+##### 訓練最佳模型
+####predictions_train = best_model.predict(X_train)
+####predictions_val = best_model.predict(X_val)
+####predictions_test = best_model.predict(test_data)
+####out_file_name = "random_forest_regressor_best.csv"
 
-	# 預測
+##### RMS error
+####print_prediction_status( "Random Forest Regressor", predictions_train, y_train, predictions_val, y_val, out_file_name)
+####out_file(test_data.ID, predictions_test, out_file_name)
 
 	#############################
 	# Gradient Boosting Decision Tree, GBDT #
@@ -208,6 +212,18 @@ def main():
 	# RMS error
 	print_prediction_status( "Elastic Net Regularization ", predictions_train, y_train, predictions_val, y_val, out_file_name)
 	out_file(test_data.ID, predictions_test, out_file_name)
+
+def model_status( model, X_train, y_train, X_val, y_val, test_data, out_file_name, model_name ):
+	model.fit(X_train, y_train)
+
+	predictions_train = model.predict(X_train)
+	predictions_val = model.predict(X_val)
+	predictions_test = model.predict(test_data)
+
+	# RMS error
+	print_prediction_status( model_name, predictions_train, y_train, predictions_val, y_val, out_file_name)
+	out_file(test_data.ID, predictions_test, out_file_name)
+
 
 def print_prediction_status( model_str, predictions_train, y_train, predictions_val, y_val, out_file_name):
 	print( "{0:<34} : {1:<10},   {2:<8},           {3:<8}".format(model_str, round( metrics.mean_squared_error(predictions_train, y_train)**0.5 ,8), round( metrics.mean_squared_error(predictions_val, y_val)**0.5,8) , out_file_name ))
