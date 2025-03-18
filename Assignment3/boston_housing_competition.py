@@ -13,6 +13,9 @@ model from scratch! Go data scientists!
 
 import pandas as pd
 import numpy as np
+from sklearn.linear_model import ElasticNet
+import lightgbm as lgb
+from xgboost import XGBRegressor
 import matplotlib.pylab as plt
 from sklearn import preprocessing, linear_model, metrics, ensemble, svm
 from sklearn.model_selection import train_test_split
@@ -120,6 +123,53 @@ def main():
 
 	# RMS error
 	print_prediction_status( "Support Vector Regression ", predictions_train, y_train, predictions_val, y_val, out_file_name)
+	out_file(test_data.ID, predictions_test, out_file_name)
+
+	#############################
+	# Extreme Gradient Boosting #
+	#############################
+	h = XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=6)
+
+	h.fit(X_train, y_train)
+
+	predictions_train = h.predict(X_train)
+	predictions_val = h.predict(X_val)
+	predictions_test = h.predict(test_data)
+	out_file_name = "extreme_gradient_boosting.csv"
+
+	# RMS error
+	print_prediction_status( "Extreme Gradient Boosting ", predictions_train, y_train, predictions_val, y_val, out_file_name)
+	out_file(test_data.ID, predictions_test, out_file_name)
+
+	#############################
+	# Light Gradient Boosting Machine #
+	#############################
+####h = lgb.LGBMRegressor(n_estimators=100, learning_rate=0.1, max_depth=6,force_col_wise=True)
+
+####h.fit(X_train, y_train)
+
+####predictions_train = h.predict(X_train)
+####predictions_val = h.predict(X_val)
+####predictions_test = h.predict(test_data)
+####out_file_name = "light_gradient_boosting_machine.csv"
+
+####print_prediction_status( "Light Gradient Boosting Machine ", predictions_train, y_train, predictions_val, y_val, out_file_name)
+####out_file(test_data.ID, predictions_test, out_file_name)
+
+	#############################
+	# Elastic Net Regularization #
+	#############################
+	h = XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=6)
+
+	h.fit(X_train, y_train)
+
+	predictions_train = h.predict(X_train)
+	predictions_val = h.predict(X_val)
+	predictions_test = h.predict(test_data)
+	out_file_name = "elastic_net_regularization.csv"
+
+	# RMS error
+	print_prediction_status( "Elastic Net Regularization ", predictions_train, y_train, predictions_val, y_val, out_file_name)
 	out_file(test_data.ID, predictions_test, out_file_name)
 
 def print_prediction_status( model_str, predictions_train, y_train, predictions_val, y_val, out_file_name):
