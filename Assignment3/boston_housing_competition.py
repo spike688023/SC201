@@ -13,19 +13,17 @@ model from scratch! Go data scientists!
 
 import pandas as pd
 import numpy as np
-from sklearn.linear_model import ElasticNet
 import lightgbm as lgb
 from xgboost import XGBRegressor
 import matplotlib.pylab as plt
 from sklearn import preprocessing, linear_model, metrics, ensemble, svm
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from scipy.stats import randint
 
 TRAIN_FILE = 'boston_housing/train.csv'
 TEST_FILE = 'boston_housing/test.csv'
 
-param_dist = {
+random_forest_regressor_param_dist = {
     'n_estimators': randint(100, 500),
     'max_depth': randint(10, 30),
     'min_samples_split': randint(5, 20),
@@ -33,6 +31,57 @@ param_dist = {
     'max_features': ['sqrt', 0.5]
 }
 
+GBDT_param_dist = {
+    'n_estimators': [50, 100, 200, 500],  # 樹的數量
+    'learning_rate': [0.01, 0.05, 0.1, 0.2],  # 學習率
+    'max_depth': [3, 4, 5, 6, 7],  # 樹的最大深度
+    'subsample': [0.6, 0.8, 1.0],  # 每棵樹的樣本比例
+    'min_samples_split': [2, 5, 10],  # 內部節點的最小樣本數
+    'min_samples_leaf': [1, 3, 5, 10],  # 葉節點的最小樣本數
+    'max_features': ['sqrt', 'log2', None],  # 每棵樹的特徵選擇
+    'loss': ['squared_error', 'huber'],  # 損失函數（MSE 或 Huber）
+}
+
+EGB_param_dist = {
+    'n_estimators': [50, 100, 200, 500],  # 樹的數量
+    'learning_rate': [0.01, 0.05, 0.1, 0.2],  # 學習率
+    'max_depth': [3, 4, 5, 6, 7, 8],  # 樹的最大深度
+    'subsample': [0.6, 0.8, 1.0],  # 每棵樹使用的樣本比例
+    'colsample_bytree': [0.6, 0.8, 1.0],  # 每棵樹使用的特徵比例
+    'gamma': [0, 0.1, 0.2, 0.3],  # 節點分裂所需的最小損失減少
+    'min_child_weight': [1, 3, 5, 10],  # 決定葉子節點中最小樣本權重和
+    'reg_alpha': [0, 0.01, 0.1, 1],  # L1 正則化
+    'reg_lambda': [0, 0.01, 0.1, 1]  # L2 正則化
+}
+
+LGBM_eparam_distributions = {
+    "n_estimators": [50, 100, 200, 300, 500],
+    "learning_rate": np.linspace(0.01, 0.3, 10),
+    "max_depth": [3, 4, 5, 6, 7, -1],  # -1 代表無限制
+    "num_leaves": [20, 31, 40, 50, 60],
+    "subsample": np.linspace(0.6, 1.0, 5),
+    "colsample_bytree": np.linspace(0.6, 1.0, 5),
+    "reg_alpha": np.linspace(0, 1, 5),
+    "reg_lambda": np.linspace(0, 1, 5)
+}
+
+elastic_net = linear_model.ElasticNet()
+
+EN_param_distributions = {
+    'alpha': np.logspace(-4, 1, 10),  # alpha 範圍從 10^(-4) 到 10^(1)
+    'l1_ratio': np.linspace(0, 1, 10),  # l1_ratio 範圍從 0 到 1
+}
+
+EN_random_search = RandomizedSearchCV(
+    elastic_net,
+    EN_param_distributions,
+    n_iter=30,  # 隨機搜尋 30 次
+    scoring='neg_root_mean_squared_error',  # 使用 RMSE 評估模型
+    cv=5,  # 5-fold 交叉驗證
+    verbose=1,  # 顯示進度
+    random_state=42,
+    n_jobs=-1  # 使用所有 CPU 核心進行運算
+)
 
 def main():
 	train_data = pd.read_csv(TRAIN_FILE)
@@ -80,138 +129,103 @@ def main():
 	#############################
 	# Random Forest Regressor  #
 	#############################
+	print("\n")
 	h = ensemble.RandomForestRegressor(n_estimators=100, random_state=42)
 
 	model_status(h, X_train, y_train, X_val, y_val, test_data, "random_forest_regressor.csv", "Random Forest Regressor")
 
-####h.fit(X_train, y_train)
-
-####predictions_train = h.predict(X_train)
-####predictions_val = h.predict(X_val)
-####predictions_test = h.predict(test_data)
-####out_file_name = "random_forest_regressor.csv"
-
-##### RMS error
-####print_prediction_status( "Random Forest Regressor", predictions_train, y_train, predictions_val, y_val, out_file_name)
-####out_file(test_data.ID, predictions_test, out_file_name)
-
-
-
 	# find best parameter
-	random_search = RandomizedSearchCV(ensemble.RandomForestRegressor(random_state=42),param_dist, n_iter=20, cv=5, scoring='neg_root_mean_squared_error')
+	random_search = RandomizedSearchCV(ensemble.RandomForestRegressor(random_state=42),random_forest_regressor_param_dist, n_iter=20, cv=5, scoring='neg_root_mean_squared_error')
 	random_search.fit(X_train, y_train)
 	print("Best Parameters:", random_search.best_params_)
 
-	# training again
 	# 使用 RandomizedSearchCV 找到的最佳參數
 	best_params = random_search.best_params_
 
 	# 直接餵給 RandomForestRegressor
 	best_model = ensemble.RandomForestRegressor(**best_params, random_state=42)
-
 	model_status(best_model, X_train, y_train, X_val, y_val, test_data, "random_forest_regressor_best.csv", "Random Forest Regressor")
 
-####best_model.fit(X_train, y_train)
-
-##### 訓練最佳模型
-####predictions_train = best_model.predict(X_train)
-####predictions_val = best_model.predict(X_val)
-####predictions_test = best_model.predict(test_data)
-####out_file_name = "random_forest_regressor_best.csv"
-
-##### RMS error
-####print_prediction_status( "Random Forest Regressor", predictions_train, y_train, predictions_val, y_val, out_file_name)
-####out_file(test_data.ID, predictions_test, out_file_name)
+	print("\n")
 
 	#############################
 	# Gradient Boosting Decision Tree, GBDT #
 	#############################
 	h = ensemble.GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=4, random_state=42)
 
-	h.fit(X_train, y_train)
+	model_status(h, X_train, y_train, X_val, y_val, test_data, "gradient_boosting_decision_tree.csv", "Gradient Boosting Decision Tree")
 
-	predictions_train = h.predict(X_train)
-	predictions_val = h.predict(X_val)
-	predictions_test = h.predict(test_data)
-	out_file_name = "gradient_boosting_decision_tree.csv"
+	# find best parameter
+	random_search = RandomizedSearchCV(ensemble.GradientBoostingRegressor(random_state=42),random_forest_regressor_param_dist, n_iter=20, cv=5, scoring='neg_root_mean_squared_error')
+	random_search.fit(X_train, y_train)
+	print("Best Parameters:", random_search.best_params_)
 
-	# RMS error
-	print_prediction_status( "Gradient Boosting Decision Tree ", predictions_train, y_train, predictions_val, y_val, out_file_name)
-	out_file(test_data.ID, predictions_test, out_file_name)
+	# 使用 RandomizedSearchCV 找到的最佳參數
+	best_params = random_search.best_params_
 
-	#############################
-	# Support Vector Regression, SVR #
-	#############################
-	scaler_X = preprocessing.StandardScaler()
-	scaler_y = preprocessing.StandardScaler()
-	X_train_scaled = scaler_X.fit_transform(X_train)
-	y_train_scaled = scaler_y.fit_transform(np.array(y_train).reshape(-1, 1)).ravel()
-	X_val_scaled = scaler_X.transform(X_val)
-	X_test_scaled = scaler_X.transform(test_data)
+	# 直接餵給 RandomForestRegressor
+	best_model = ensemble.GradientBoostingRegressor(**best_params, random_state=42)
+	model_status(best_model, X_train, y_train, X_val, y_val, test_data, "gradient_boosting_decision_tree_best.csv", "Gradient Boosting Decision Tree")
 
-	#  訓練 Support Vector Regression（SVR）
-	h = svm.SVR(kernel='rbf', C=100, epsilon=0.1)
-	h.fit(X_train_scaled, y_train_scaled)
-
-	#  預測房價（需還原縮放）
-	y_train_pred_scaled = h.predict(X_train_scaled)
-	y_val_pred_scaled = h.predict(X_val_scaled)
-	y_test_pred_scaled = h.predict(X_test_scaled)
-	predictions_train = scaler_y.inverse_transform(y_train_pred_scaled.reshape(-1, 1)).ravel()
-	predictions_val = scaler_y.inverse_transform(y_val_pred_scaled.reshape(-1, 1)).ravel()
-	predictions_test = scaler_y.inverse_transform(y_test_pred_scaled.reshape(-1, 1)).ravel()
-	out_file_name = "support_vector_regression.csv"
-
-	# RMS error
-	print_prediction_status( "Support Vector Regression ", predictions_train, y_train, predictions_val, y_val, out_file_name)
-	out_file(test_data.ID, predictions_test, out_file_name)
+	print("\n")
 
 	#############################
 	# Extreme Gradient Boosting #
 	#############################
 	h = XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=6)
 
-	h.fit(X_train, y_train)
+	model_status(h, X_train, y_train, X_val, y_val, test_data, "extreme_gradient_boosting.csv", "Extreme Gradient Boosting")
 
-	predictions_train = h.predict(X_train)
-	predictions_val = h.predict(X_val)
-	predictions_test = h.predict(test_data)
-	out_file_name = "extreme_gradient_boosting.csv"
+	# find best parameter
+	random_search = RandomizedSearchCV(XGBRegressor(random_state=42),EGB_param_dist, n_iter=20, cv=5, scoring='neg_root_mean_squared_error')
+	random_search.fit(X_train, y_train)
+	print("Best Parameters:", random_search.best_params_)
 
-	# RMS error
-	print_prediction_status( "Extreme Gradient Boosting ", predictions_train, y_train, predictions_val, y_val, out_file_name)
-	out_file(test_data.ID, predictions_test, out_file_name)
+	# 使用 RandomizedSearchCV 找到的最佳參數
+	best_params = random_search.best_params_
+
+	best_model = XGBRegressor(**best_params, random_state=42)
+
+	model_status(best_model, X_train, y_train, X_val, y_val, test_data, "extreme_gradient_boosting_best.csv", "Extreme Gradient Boosting")
+	print("\n")
+
 
 	#############################
 	# Light Gradient Boosting Machine #
 	#############################
-####h = lgb.LGBMRegressor(n_estimators=100, learning_rate=0.1, max_depth=6,force_col_wise=True)
+	h = lgb.LGBMRegressor(n_estimators=100, learning_rate=0.1, max_depth=6, verbose=-1)
 
-####h.fit(X_train, y_train)
+	model_status(h, X_train, y_train, X_val, y_val, test_data, "light_gradient_boosting_machine.csv", "Light Gradient Boosting Machine")
 
-####predictions_train = h.predict(X_train)
-####predictions_val = h.predict(X_val)
-####predictions_test = h.predict(test_data)
-####out_file_name = "light_gradient_boosting_machine.csv"
+	# find best parameter
+	random_search = RandomizedSearchCV(lgb.LGBMRegressor(random_state=42),EGB_param_dist, n_iter=20, cv=5, scoring='neg_root_mean_squared_error')
+	random_search.fit(X_train, y_train)
+	print("Best Parameters:", random_search.best_params_)
 
-####print_prediction_status( "Light Gradient Boosting Machine ", predictions_train, y_train, predictions_val, y_val, out_file_name)
-####out_file(test_data.ID, predictions_test, out_file_name)
+	# 使用 RandomizedSearchCV 找到的最佳參數
+	best_params = random_search.best_params_
+
+	best_model = lgb.LGBMRegressor(**best_params, random_state=42)
+	model_status(best_model, X_train, y_train, X_val, y_val, test_data, "light_gradient_boosting_machine_best.csv", "Light Gradient Boosting Machine")
+
+	print("\n")
 
 	#############################
 	# Elastic Net Regularization #
 	#############################
-	h = XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=6)
+	h = linear_model.ElasticNet(alpha=0.01, l1_ratio=0.7)
 
-	h.fit(X_train, y_train)
+	model_status(h, X_train, y_train, X_val, y_val, test_data, "elastic_net_regularization.csv", "Elastic Net Regularization")
 
-	predictions_train = h.predict(X_train)
-	predictions_val = h.predict(X_val)
-	predictions_test = h.predict(test_data)
-	out_file_name = "elastic_net_regularization.csv"
+	# find best parameter
+	EN_random_search.fit(X_train, y_train)
+	print("Best Parameters:", EN_random_search.best_params_)
 
-	# RMS error
-	print_prediction_status( "Elastic Net Regularization ", predictions_train, y_train, predictions_val, y_val, out_file_name)
-	out_file(test_data.ID, predictions_test, out_file_name)
+	# 使用 RandomizedSearchCV 找到的最佳參數
+	best_params = EN_random_search.best_params_
+
+	best_model = linear_model.ElasticNet(**best_params, random_state=42)
+	model_status(best_model, X_train, y_train, X_val, y_val, test_data, "elastic_net_regularization_best.csv", "Elastic Net Regularization")
 
 def model_status( model, X_train, y_train, X_val, y_val, test_data, out_file_name, model_name ):
 	model.fit(X_train, y_train)
