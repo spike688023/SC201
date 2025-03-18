@@ -65,23 +65,6 @@ LGBM_eparam_distributions = {
     "reg_lambda": np.linspace(0, 1, 5)
 }
 
-elastic_net = linear_model.ElasticNet()
-
-EN_param_distributions = {
-    'alpha': np.logspace(-4, 1, 10),  # alpha 範圍從 10^(-4) 到 10^(1)
-    'l1_ratio': np.linspace(0, 1, 10),  # l1_ratio 範圍從 0 到 1
-}
-
-EN_random_search = RandomizedSearchCV(
-    elastic_net,
-    EN_param_distributions,
-    n_iter=30,  # 隨機搜尋 30 次
-    scoring='neg_root_mean_squared_error',  # 使用 RMSE 評估模型
-    cv=5,  # 5-fold 交叉驗證
-    verbose=1,  # 顯示進度
-    random_state=42,
-    n_jobs=-1  # 使用所有 CPU 核心進行運算
-)
 
 def main():
 	train_data = pd.read_csv(TRAIN_FILE)
@@ -156,7 +139,7 @@ def main():
 	model_status(h, X_train, y_train, X_val, y_val, test_data, "gradient_boosting_decision_tree.csv", "Gradient Boosting Decision Tree")
 
 	# find best parameter
-	random_search = RandomizedSearchCV(ensemble.GradientBoostingRegressor(random_state=42),random_forest_regressor_param_dist, n_iter=20, cv=5, scoring='neg_root_mean_squared_error')
+	random_search = RandomizedSearchCV(ensemble.GradientBoostingRegressor(random_state=42),GBDT_param_dist, n_iter=20, cv=5, scoring='neg_root_mean_squared_error')
 	random_search.fit(X_train, y_train)
 	print("Best Parameters:", random_search.best_params_)
 
@@ -198,7 +181,7 @@ def main():
 	model_status(h, X_train, y_train, X_val, y_val, test_data, "light_gradient_boosting_machine.csv", "Light Gradient Boosting Machine")
 
 	# find best parameter
-	random_search = RandomizedSearchCV(lgb.LGBMRegressor(random_state=42),EGB_param_dist, n_iter=20, cv=5, scoring='neg_root_mean_squared_error')
+	random_search = RandomizedSearchCV(lgb.LGBMRegressor(random_state=42),LGBM_eparam_distributions, n_iter=20, cv=5, scoring='neg_root_mean_squared_error')
 	random_search.fit(X_train, y_train)
 	print("Best Parameters:", random_search.best_params_)
 
@@ -209,23 +192,6 @@ def main():
 	model_status(best_model, X_train, y_train, X_val, y_val, test_data, "light_gradient_boosting_machine_best.csv", "Light Gradient Boosting Machine")
 
 	print("\n")
-
-	#############################
-	# Elastic Net Regularization #
-	#############################
-	h = linear_model.ElasticNet(alpha=0.01, l1_ratio=0.7)
-
-	model_status(h, X_train, y_train, X_val, y_val, test_data, "elastic_net_regularization.csv", "Elastic Net Regularization")
-
-	# find best parameter
-	EN_random_search.fit(X_train, y_train)
-	print("Best Parameters:", EN_random_search.best_params_)
-
-	# 使用 RandomizedSearchCV 找到的最佳參數
-	best_params = EN_random_search.best_params_
-
-	best_model = linear_model.ElasticNet(**best_params, random_state=42)
-	model_status(best_model, X_train, y_train, X_val, y_val, test_data, "elastic_net_regularization_best.csv", "Elastic Net Regularization")
 
 def model_status( model, X_train, y_train, X_val, y_val, test_data, out_file_name, model_name ):
 	model.fit(X_train, y_train)
