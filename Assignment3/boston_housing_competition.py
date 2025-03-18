@@ -19,9 +19,20 @@ from xgboost import XGBRegressor
 import matplotlib.pylab as plt
 from sklearn import preprocessing, linear_model, metrics, ensemble, svm
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import randint
 
 TRAIN_FILE = 'boston_housing/train.csv'
 TEST_FILE = 'boston_housing/test.csv'
+
+param_dist = {
+    'n_estimators': randint(100, 500),
+    'max_depth': randint(10, 30),
+    'min_samples_split': randint(5, 20),
+    'min_samples_leaf': randint(1, 10),
+    'max_features': ['sqrt', 0.5]
+}
+
 
 def main():
 	train_data = pd.read_csv(TRAIN_FILE)
@@ -81,6 +92,32 @@ def main():
 	# RMS error
 	print_prediction_status( "Random Forest Regressor", predictions_train, y_train, predictions_val, y_val, out_file_name)
 	out_file(test_data.ID, predictions_test, out_file_name)
+
+	# find best parameter
+	random_search = RandomizedSearchCV(ensemble.RandomForestRegressor(random_state=42),param_dist, n_iter=20, cv=5, scoring='neg_root_mean_squared_error', verbose=2)
+	random_search.fit(X_train, y_train)
+	print("Best Parameters:", random_search.best_params_)
+
+	# training again
+	# 使用 RandomizedSearchCV 找到的最佳參數
+	best_params = random_search.best_params_
+
+	# 直接餵給 RandomForestRegressor
+	best_model = ensemble.RandomForestRegressor(**best_params, random_state=42)
+
+	best_model.fit(X_train, y_train)
+
+	# 訓練最佳模型
+	predictions_train = best_model.predict(X_train)
+	predictions_val = best_model.predict(X_val)
+	predictions_test = best_model.predict(test_data)
+	out_file_name = "random_forest_regressor_best.csv"
+
+	# RMS error
+	print_prediction_status( "Random Forest Regressor", predictions_train, y_train, predictions_val, y_val, out_file_name)
+	out_file(test_data.ID, predictions_test, out_file_name)
+
+	# 預測
 
 	#############################
 	# Gradient Boosting Decision Tree, GBDT #
