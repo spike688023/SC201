@@ -61,7 +61,6 @@ def main():
         K_dict["K"+str(i)] = weights["W"+str(i)].T.dot(A_dict["A"+str(i-1)]) + biases["B"+str(i)]
         A_dict["A"+str(i)] = np.maximum(K_dict["K"+str(i)], 0)
 
-
     predictions = np.where(K_dict["K"+str(L)]>0, 1, 0)
     acc = np.equal(predictions, Y)
     num_acc = np.sum(acc)
@@ -108,24 +107,18 @@ def neural_network(X, Y):
 
         # Forward Pass
         # K1/A1 ~ K4/A4
-        for i in range(1, L):
+        for i in range(1, L+1):
             K_dict['K'+str(i)] = np.dot(weights['W'+str(i)].T , A_dict['A'+str(i-1)] ) + biases['B'+str(i)]
             A_dict['A'+str(i)] = np.maximum(0, K_dict['K'+str(i)])
-        # K5 and H and J
-        K_dict['K'+str(L)] = np.dot(weights['W'+str(L)].T , A_dict['A'+str(L-1)] ) + biases['B'+str(L)]
+        # H and J
         H = 1/(1+np.exp(-K_dict['K'+str(L)]))
         J = (1/m) * np.sum(-(Y*np.log(H)+(1-Y)*np.log(1-H)))
 
         if epoch % print_every == 0:
             print("Cost : ", J)
-            #print("L : ", L)
-            #print("K_dict.keys() : ", K_dict.keys())
-            #print("A_dict.keys() : ", A_dict.keys())
 
         # Backward Pass
         K_dict['dK'+str(L)] = (1/m)*np.sum(H-Y, axis=0, keepdims=True)
-        #print("A_dict['A4'].shape : ", A_dict['A'+str(L-1)].shape)
-        #print("K_dict['dK5'].T.shape : ", K_dict['dK'+str(L)].T.shape)
         derivate_weights['dW'+str(L)] = np.dot(A_dict['A'+str(L-1)], K_dict['dK'+str(L)].T )
         derivate_biases['dB'+str(L)] = np.sum(K_dict['dK'+str(L)], axis=1, keepdims=True)
 
