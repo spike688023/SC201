@@ -53,12 +53,18 @@ def main():
     print('X.shape', X_train.shape)
     # ['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare']
     X = normalize(X_train)
-    ####################################
-    #                                  #
-    #              TODO:               #
-    #                                  #
-    ####################################
+    weights, biases = neural_network(X, Y)
+    # Last ForwardProp -> Inference
+    K_dict = {}
+    A_dict = {"A0":X}
+    for i in range(1,L+1):
+        K_dict["K"+str(i)] = weights["W"+str(i)].T.dot(A_dict["A"+str(i-1)]) + biases["B"+str(i)]
+        A_dict["A"+str(i)] = np.maximum(K_dict["K"+str(i)], 0)
 
+    predictions = np.where(K_dict["K"+str(L)]>0, 1, 0)
+    acc = np.equal(predictions, Y)
+    num_acc = np.sum(acc)
+    print("Training Acc : ", num_acc/m)
 
 def normalize(X):
     """
@@ -80,27 +86,52 @@ def neural_network(X, Y):
              bias: Dict[str, float], key is 'B1', 'B2', ...
                                      value is the corresponding float
     """
+    global L
+    n, m = X.shape
     np.random.seed(1)
     weights = {}
     biases = {}
 
     # Initialize all the weights and biases
-    #####################################
-    #                                   #
-    #               TODO:               #
-    #                                   #
-    #####################################
+    for i in range(1, L+1):
+        weights['W'+str(i)] = np.random.rand(NODES['N'+str(i-1)], NODES['N'+str(i)]) - 0.5
+        biases['B'+str(i)] = np.random.rand(NODES['N'+str(i)], 1) - 0.5
 
+    print_every = 1000
     for epoch in range(NUM_EPOCHS):
+
+        K_dict = {}
+        A_dict = {"A0":X}
+        derivate_weights = {}
+        derivate_biases = {}
+
         # Forward Pass
-        # TODO:
+        # K1/A1 ~ K4/A4
+        for i in range(1, L+1):
+            K_dict['K'+str(i)] = np.dot(weights['W'+str(i)].T , A_dict['A'+str(i-1)] ) + biases['B'+str(i)]
+            A_dict['A'+str(i)] = np.maximum(0, K_dict['K'+str(i)])
+        # H and J
+        H = 1/(1+np.exp(-K_dict['K'+str(L)]))
+        J = (1/m) * np.sum(-(Y*np.log(H)+(1-Y)*np.log(1-H)))
+
+        if epoch % print_every == 0:
+            print("Cost : ", J)
 
         # Backward Pass
-        # TODO:
+        K_dict['dK'+str(L)] = (1/m)*np.sum(H-Y, axis=0, keepdims=True)
+        derivate_weights['dW'+str(L)] = np.dot(A_dict['A'+str(L-1)], K_dict['dK'+str(L)].T )
+        derivate_biases['dB'+str(L)] = np.sum(K_dict['dK'+str(L)], axis=1, keepdims=True)
+
+        for i in range(L-1, 0, -1):
+            A_dict['dA'+str(i)] = np.dot(weights['W'+str(i+1)], K_dict['dK'+str(i+1)])
+            K_dict['dK'+str(i)] = A_dict['dA'+str(i)] * np.where( K_dict['K'+str(i)] > 0, 1, 0)
+            derivate_weights['dW'+str(i)] = np.dot(A_dict['A'+str(i-1)], K_dict['dK'+str(i)].T )
+            derivate_biases['dB'+str(i)] = np.sum(K_dict['dK'+str(i)], axis=1, keepdims=True)
 
         # Updates all the weights and biases
-        # TODO:
-        pass
+        for i in range(1, L+1):
+            weights['W'+str(i)] = weights['W'+str(i)] - ALPHA * derivate_weights['dW'+str(i)]
+            biases['B'+str(i)] = biases['B'+str(i)] - ALPHA * derivate_biases['dB'+str(i)]
 
     return weights, biases
 
